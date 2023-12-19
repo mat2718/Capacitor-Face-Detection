@@ -13,7 +13,7 @@
     "ios/Plugin/",
     "Mat2718FaceDetection.podspec"
   ],
-  "author": "",
+  "author": "Matthew Terry <matthewterry68.mt@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
