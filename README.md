@@ -16,18 +16,18 @@ npx cap sync
 * [`startActiveScan(...)`](#startactivescan)
 * [`readFaceFromImage(...)`](#readfacefromimage)
 * [`stopScan()`](#stopscan)
-* [`isSupported()`](#issupported)
+* [`addListener('faceScanned', ...)`](#addlistenerfacescanned)
+* [`addListener('scanError', ...)`](#addlistenerscanerror)
+* [`removeAllListeners()`](#removealllisteners)
 * [`enableTorch()`](#enabletorch)
 * [`disableTorch()`](#disabletorch)
 * [`toggleTorch()`](#toggletorch)
 * [`isTorchEnabled()`](#istorchenabled)
 * [`isTorchAvailable()`](#istorchavailable)
 * [`openSettings()`](#opensettings)
+* [`isSupported()`](#issupported)
 * [`checkPermissions()`](#checkpermissions)
 * [`requestPermissions()`](#requestpermissions)
-* [`addListener('faceScanned', ...)`](#addlistenerfacescanned)
-* [`addListener('scanError', ...)`](#addlistenerscanerror)
-* [`removeAllListeners()`](#removealllisteners)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -53,14 +53,14 @@ startActiveScan(options: StartActiveScanOptions) => Promise<void>
 ### readFaceFromImage(...)
 
 ```typescript
-readFaceFromImage(options: FaceProcessingOptions) => Promise<ProcessImageResult>
+readFaceFromImage(options: readFaceFromImageOptions) => Promise<FaceDetectionResults>
 ```
 
-| Param         | Type                                                                    |
-| ------------- | ----------------------------------------------------------------------- |
-| **`options`** | <code><a href="#faceprocessingoptions">FaceProcessingOptions</a></code> |
+| Param         | Type                                                                          |
+| ------------- | ----------------------------------------------------------------------------- |
+| **`options`** | <code><a href="#readfacefromimageoptions">readFaceFromImageOptions</a></code> |
 
-**Returns:** <code>Promise&lt;<a href="#processimageresult">ProcessImageResult</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#facedetectionresults">FaceDetectionResults</a>&gt;</code>
 
 --------------------
 
@@ -74,13 +74,43 @@ stopScan() => Promise<void>
 --------------------
 
 
-### isSupported()
+### addListener('faceScanned', ...)
 
 ```typescript
-isSupported() => Promise<IsSupportedResult>
+addListener(eventName: 'faceScanned', listenerFunc: (event: ActiveFaceSanResult) => void) => Promise<PluginListenerHandle> & PluginListenerHandle
 ```
 
-**Returns:** <code>Promise&lt;<a href="#issupportedresult">IsSupportedResult</a>&gt;</code>
+| Param              | Type                                                                                    |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| **`eventName`**    | <code>'faceScanned'</code>                                                              |
+| **`listenerFunc`** | <code>(event: <a href="#activefacesanresult">ActiveFaceSanResult</a>) =&gt; void</code> |
+
+**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt; & <a href="#pluginlistenerhandle">PluginListenerHandle</a></code>
+
+--------------------
+
+
+### addListener('scanError', ...)
+
+```typescript
+addListener(eventName: 'scanError', listenerFunc: (event: ScanErrorEvent) => void) => Promise<PluginListenerHandle> & PluginListenerHandle
+```
+
+| Param              | Type                                                                          |
+| ------------------ | ----------------------------------------------------------------------------- |
+| **`eventName`**    | <code>'scanError'</code>                                                      |
+| **`listenerFunc`** | <code>(event: <a href="#scanerrorevent">ScanErrorEvent</a>) =&gt; void</code> |
+
+**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt; & <a href="#pluginlistenerhandle">PluginListenerHandle</a></code>
+
+--------------------
+
+
+### removeAllListeners()
+
+```typescript
+removeAllListeners() => Promise<void>
+```
 
 --------------------
 
@@ -143,6 +173,17 @@ openSettings() => Promise<void>
 --------------------
 
 
+### isSupported()
+
+```typescript
+isSupported() => Promise<IsSupportedResult>
+```
+
+**Returns:** <code>Promise&lt;<a href="#issupportedresult">IsSupportedResult</a>&gt;</code>
+
+--------------------
+
+
 ### checkPermissions()
 
 ```typescript
@@ -165,47 +206,6 @@ requestPermissions() => Promise<PermissionStatus>
 --------------------
 
 
-### addListener('faceScanned', ...)
-
-```typescript
-addListener(eventName: 'faceScanned', listenerFunc: (event: FaceScannedEvent) => void) => Promise<PluginListenerHandle> & PluginListenerHandle
-```
-
-| Param              | Type                                                                              |
-| ------------------ | --------------------------------------------------------------------------------- |
-| **`eventName`**    | <code>'faceScanned'</code>                                                        |
-| **`listenerFunc`** | <code>(event: <a href="#facescannedevent">FaceScannedEvent</a>) =&gt; void</code> |
-
-**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt; & <a href="#pluginlistenerhandle">PluginListenerHandle</a></code>
-
---------------------
-
-
-### addListener('scanError', ...)
-
-```typescript
-addListener(eventName: 'scanError', listenerFunc: (event: ScanErrorEvent) => void) => Promise<PluginListenerHandle> & PluginListenerHandle
-```
-
-| Param              | Type                                                                          |
-| ------------------ | ----------------------------------------------------------------------------- |
-| **`eventName`**    | <code>'scanError'</code>                                                      |
-| **`listenerFunc`** | <code>(event: <a href="#scanerrorevent">ScanErrorEvent</a>) =&gt; void</code> |
-
-**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt; & <a href="#pluginlistenerhandle">PluginListenerHandle</a></code>
-
---------------------
-
-
-### removeAllListeners()
-
-```typescript
-removeAllListeners() => Promise<void>
-```
-
---------------------
-
-
 ### Interfaces
 
 
@@ -216,29 +216,29 @@ removeAllListeners() => Promise<void>
 | **`lensFacing`** | <code><a href="#lensfacing">LensFacing</a></code> |
 
 
-#### ProcessImageResult
+#### FaceDetectionResults
 
-| Prop        | Type                | Description         | Since |
-| ----------- | ------------------- | ------------------- | ----- |
-| **`faces`** | <code>Face[]</code> | The detected faces. | 5.1.0 |
+| Prop        | Type                |
+| ----------- | ------------------- |
+| **`faces`** | <code>Face[]</code> |
 
 
 #### Face
 
 Represents a face detected by `FaceDetector`.
 
-| Prop                          | Type                                  | Description                                                                                                                                                                | Since |
-| ----------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| **`bounds`**                  | <code><a href="#rect">Rect</a></code> | Returns the axis-aligned bounding rectangle of the detected face.                                                                                                          | 5.1.0 |
-| **`landmarks`**               | <code>FaceLandmark[]</code>           | Returns a list of face landmarks.                                                                                                                                          | 5.1.0 |
-| **`contours`**                | <code>FaceContour[]</code>            | Returns a list of face contours.                                                                                                                                           | 5.1.0 |
-| **`trackingId`**              | <code>number</code>                   | Returns the tracking ID if the tracking is enabled.                                                                                                                        | 5.1.0 |
-| **`headEulerAngleX`**         | <code>number</code>                   | Returns the rotation of the face about the horizontal axis of the image. Positive euler X is the face is looking up.                                                       | 5.1.0 |
-| **`headEulerAngleY`**         | <code>number</code>                   | Returns the rotation of the face about the vertical axis of the image. Positive euler y is when the face turns toward the right side of the image that is being processed. | 5.1.0 |
-| **`headEulerAngleZ`**         | <code>number</code>                   | Returns the rotation of the face about the axis pointing out of the image. Positive euler z is a counter-clockwise rotation within the image plane.                        | 5.1.0 |
-| **`smilingProbability`**      | <code>number</code>                   | Returns a value between 0.0 and 1.0 giving a probability that the face is smiling.                                                                                         | 5.1.0 |
-| **`leftEyeOpenProbability`**  | <code>number</code>                   | Returns a value between 0.0 and 1.0 giving a probability that the face's left eye is open.                                                                                 | 5.1.0 |
-| **`rightEyeOpenProbability`** | <code>number</code>                   | Returns a value between 0.0 and 1.0 giving a probability that the face's right eye is open.                                                                                | 5.1.0 |
+| Prop                          | Type                                  | Description                                                                                                                                                                |
+| ----------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`bounds`**                  | <code><a href="#rect">Rect</a></code> | Returns the axis-aligned bounding rectangle of the detected face.                                                                                                          |
+| **`landmarks`**               | <code>FaceLandmark[]</code>           | Returns a list of face landmarks.                                                                                                                                          |
+| **`contours`**                | <code>FaceContour[]</code>            | Returns a list of face contours.                                                                                                                                           |
+| **`trackingId`**              | <code>number</code>                   | Returns the tracking ID if the tracking is enabled.                                                                                                                        |
+| **`headEulerAngleX`**         | <code>number</code>                   | Returns the rotation of the face about the horizontal axis of the image. Positive euler X is the face is looking up.                                                       |
+| **`headEulerAngleY`**         | <code>number</code>                   | Returns the rotation of the face about the vertical axis of the image. Positive euler y is when the face turns toward the right side of the image that is being processed. |
+| **`headEulerAngleZ`**         | <code>number</code>                   | Returns the rotation of the face about the axis pointing out of the image. Positive euler z is a counter-clockwise rotation within the image plane.                        |
+| **`smilingProbability`**      | <code>number</code>                   | Returns a value between 0.0 and 1.0 giving a probability that the face is smiling.                                                                                         |
+| **`leftEyeOpenProbability`**  | <code>number</code>                   | Returns a value between 0.0 and 1.0 giving a probability that the face's left eye is open.                                                                                 |
+| **`rightEyeOpenProbability`** | <code>number</code>                   | Returns a value between 0.0 and 1.0 giving a probability that the face's right eye is open.                                                                                |
 
 
 #### Rect
@@ -285,44 +285,11 @@ A contour is a list of points on a detected face, such as the mouth.
 | **`points`** | <code>Point[]</code>                                | Gets a list of 2D points for this face contour, where (0, 0) is the upper-left corner of the image. | 5.1.0 |
 
 
-#### FaceProcessingOptions
+#### readFaceFromImageOptions
 
-| Prop                     | Type                                                              | Description                                                                                                                                                                                     | Default                              | Since |
-| ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ----- |
-| **`performanceMode`**    | <code><a href="#performancemode">PerformanceMode</a></code>       | Defines options to control accuracy / speed trade-offs in performing face detection.                                                                                                            | <code>PerformanceMode.Fast</code>    | 5.1.0 |
-| **`landmarkMode`**       | <code><a href="#landmarkmode">LandmarkMode</a></code>             | Defines options to enable face landmarks or not.                                                                                                                                                | <code>LandmarkMode.None</code>       | 5.1.0 |
-| **`contourMode`**        | <code><a href="#contourmode">ContourMode</a></code>               | Defines options to enable face contours or not.                                                                                                                                                 | <code>ContourMode.None</code>        | 5.1.0 |
-| **`classificationMode`** | <code><a href="#classificationmode">ClassificationMode</a></code> | Defines options for characterizing attributes such as "smiling" * and "eyes open".                                                                                                              | <code>ClassificationMode.None</code> | 5.1.0 |
-| **`minFaceSize`**        | <code>number</code>                                               | Sets the smallest desired face size, expressed as a proportion of the width of the head to the image width.                                                                                     | <code>0.1</code>                     | 5.1.0 |
-| **`enableTracking`**     | <code>boolean</code>                                              | Enables face tracking, which will maintain a consistent ID for each face when processing consecutive frames. Tracking should be disabled for handling a series of non-consecutive still images. | <code>false</code>                   | 5.1.0 |
-
-
-#### IsSupportedResult
-
-| Prop            | Type                 | Description                                                                             | Since |
-| --------------- | -------------------- | --------------------------------------------------------------------------------------- | ----- |
-| **`supported`** | <code>boolean</code> | Whether or not the barcode scanner is supported by checking if the device has a camera. | 0.0.1 |
-
-
-#### IsTorchEnabledResult
-
-| Prop          | Type                 | Description                          | Since |
-| ------------- | -------------------- | ------------------------------------ | ----- |
-| **`enabled`** | <code>boolean</code> | Whether or not the torch is enabled. | 0.0.1 |
-
-
-#### IsTorchAvailableResult
-
-| Prop            | Type                 | Description                            | Since |
-| --------------- | -------------------- | -------------------------------------- | ----- |
-| **`available`** | <code>boolean</code> | Whether or not the torch is available. | 0.0.1 |
-
-
-#### PermissionStatus
-
-| Prop         | Type                                                                    | Since |
-| ------------ | ----------------------------------------------------------------------- | ----- |
-| **`camera`** | <code><a href="#camerapermissionstate">CameraPermissionState</a></code> | 0.0.1 |
+| Prop       | Type                |
+| ---------- | ------------------- |
+| **`path`** | <code>string</code> |
 
 
 #### PluginListenerHandle
@@ -332,18 +299,46 @@ A contour is a list of points on a detected face, such as the mouth.
 | **`remove`** | <code>() =&gt; Promise&lt;void&gt;</code> |
 
 
-#### FaceScannedEvent
+#### ActiveFaceSanResult
 
-| Prop          | Type                 | Description         | Since |
-| ------------- | -------------------- | ------------------- | ----- |
-| **`barcode`** | <code>Barcode</code> | A detected barcode. | 0.0.1 |
+| Prop       | Type                                  |
+| ---------- | ------------------------------------- |
+| **`face`** | <code><a href="#face">Face</a></code> |
 
 
 #### ScanErrorEvent
 
-| Prop          | Type                | Description        | Since |
-| ------------- | ------------------- | ------------------ | ----- |
-| **`message`** | <code>string</code> | The error message. | 0.0.1 |
+| Prop          | Type                |
+| ------------- | ------------------- |
+| **`message`** | <code>string</code> |
+
+
+#### IsTorchEnabledResult
+
+| Prop          | Type                 |
+| ------------- | -------------------- |
+| **`enabled`** | <code>boolean</code> |
+
+
+#### IsTorchAvailableResult
+
+| Prop            | Type                 |
+| --------------- | -------------------- |
+| **`available`** | <code>boolean</code> |
+
+
+#### IsSupportedResult
+
+| Prop            | Type                 |
+| --------------- | -------------------- |
+| **`supported`** | <code>boolean</code> |
+
+
+#### PermissionStatus
+
+| Prop         | Type                                                                    |
+| ------------ | ----------------------------------------------------------------------- |
+| **`camera`** | <code><a href="#camerapermissionstate">CameraPermissionState</a></code> |
 
 
 ### Type Aliases
@@ -364,10 +359,10 @@ A contour is a list of points on a detected face, such as the mouth.
 
 #### LensFacing
 
-| Members     | Value                | Since |
-| ----------- | -------------------- | ----- |
-| **`Front`** | <code>'FRONT'</code> | 0.0.1 |
-| **`Back`**  | <code>'BACK'</code>  | 0.0.1 |
+| Members     | Value                |
+| ----------- | -------------------- |
+| **`Front`** | <code>'FRONT'</code> |
+| **`Back`**  | <code>'BACK'</code>  |
 
 
 #### LandmarkType
@@ -405,37 +400,5 @@ A contour is a list of points on a detected face, such as the mouth.
 | **`NoseBottom`**         | <code>13</code> | The outline of the subject's nose bridge.          | 5.1.0 |
 | **`LeftCheek`**          | <code>14</code> | The center of the left cheek.                      | 5.1.0 |
 | **`RightCheek`**         | <code>15</code> | The center of the right cheek.                     | 5.1.0 |
-
-
-#### PerformanceMode
-
-| Members        | Value          | Description                                                                                                                                                                                                                 | Since |
-| -------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| **`Fast`**     | <code>1</code> | Indicates a preference for speed in the options that may make an accuracy vs. speed trade-off. This will tend to detect fewer faces and may be less precise in determining values such as position, but will run faster.    | 5.1.0 |
-| **`Accurate`** | <code>2</code> | Indicates a preference for accuracy in the options that may make an accuracy vs. speed trade-off. This will tend to detect more faces and may be more precise in determining values such as position, at the cost of speed. | 5.1.0 |
-
-
-#### LandmarkMode
-
-| Members    | Value          | Description                                                        | Since |
-| ---------- | -------------- | ------------------------------------------------------------------ | ----- |
-| **`None`** | <code>1</code> | Does not perform landmark detection.                               | 5.1.0 |
-| **`All`**  | <code>2</code> | Detects <a href="#facelandmark">FaceLandmark</a> for a given face. | 5.1.0 |
-
-
-#### ContourMode
-
-| Members    | Value          | Description                                                                                                           | Since |
-| ---------- | -------------- | --------------------------------------------------------------------------------------------------------------------- | ----- |
-| **`None`** | <code>1</code> | Does not perform contour detection.                                                                                   | 5.1.0 |
-| **`All`**  | <code>2</code> | Detects <a href="#facecontour">FaceContour</a> for a given face. Note that it would return contours for up to 5 faces | 5.1.0 |
-
-
-#### ClassificationMode
-
-| Members    | Value          | Description                                        | Since |
-| ---------- | -------------- | -------------------------------------------------- | ----- |
-| **`None`** | <code>1</code> | Does not perform classification.                   | 5.1.0 |
-| **`All`**  | <code>2</code> | Performs "eyes open" and "smiling" classification. | 5.1.0 |
 
 </docgen-api>
