@@ -276,7 +276,7 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
         faceDetectorInstance!!
             .process(inputImage)
             .addOnSuccessListener { faces ->
-                Log.println(Log.INFO, "FaceDetection", faces.toString())
+                Log.println(Log.INFO, TAG, faces.toString())
                 if (scanSettings == null) {
                     // Scanning stopped while processing the image
                     return@addOnSuccessListener
@@ -300,4 +300,7 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
         plugin.notifyScanErrorListener(exception.message)
     }
 
+    companion object {
+        const val TAG = "FaceDetection"
+    }
 }

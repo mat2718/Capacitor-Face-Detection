@@ -1,6 +1,6 @@
 {
   "name": "@mat2718/capacitor-face-detection",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Live face detection for Capacitor",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",

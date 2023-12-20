@@ -3,6 +3,7 @@ package com.facedetection
 import android.Manifest
 import android.graphics.Point
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.camera.core.CameraSelector
 import com.facedetection.callbacks.ScanImageResultsCallback
@@ -321,6 +322,7 @@ class FaceDetectionPlugin : Plugin() {
                 face?.let { ProcessImageResult().createSingleFaceResult(it) } //, imageSize, screenSize)
             val result = JSObject()
             result.put("face", faceResult)
+            Log.println(Log.INFO, TAG, "result being passed back:: $result")
             notifyListeners(FACE_SCANNED_EVENT, result)
         } catch (exception: Exception) {
             Logger.error(exception.message, exception)
@@ -349,7 +351,7 @@ class FaceDetectionPlugin : Plugin() {
         }
 
     companion object {
-        const val TAG = "FaceDetection"
+        const val TAG = "FaceDetectionPlugin"
         const val CAMERA = "camera"
         const val FACE_SCANNED_EVENT = "faceScanned"
         const val SCAN_ERROR_EVENT = "scanError"
