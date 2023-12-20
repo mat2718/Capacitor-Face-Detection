@@ -201,7 +201,6 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
         showWebViewBackground()
         disableTorch()
         // Stop the camera
-        // Stop the camera
         if (processCameraProvider != null) {
             processCameraProvider.unbindAll()
         }
@@ -262,6 +261,8 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
 
     val isTorchAvailable: Boolean
         get() = plugin.context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
+    
+    
     @androidx.camera.core.ExperimentalGetImage
     override fun  analyze(imageProxy: ImageProxy) {
         val image: Image? = imageProxy.image

@@ -102,7 +102,7 @@ class FaceDetectionPlugin : Plugin() {
     }
 
     @PluginMethod
-    fun processImage(call: PluginCall) {
+    fun readFaceFromImage(call: PluginCall) {
 //        used to process static image
         try {
             val path: String? = call.getString("path", null)
@@ -316,6 +316,7 @@ class FaceDetectionPlugin : Plugin() {
     fun notifyFaceScannedListener(face: Face?, imageSize: Point?) {
         try {
             val screenSize: Point = screenSize
+            // TODO: consider adding image size and screen size to the result
             val faceResult: JSObject? =
                 face?.let { ProcessImageResult().createSingleFaceResult(it) } //, imageSize, screenSize)
             val result = JSObject()

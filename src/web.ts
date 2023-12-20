@@ -1,23 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CapacitorException, ExceptionCode, WebPlugin } from '@capacitor/core';
 
 import type {
-  BarcodeScannerPlugin,
-  IsGoogleBarcodeScannerModuleAvailableResult,
+  FaceDetectionPlugin,
+  FaceDetectionResults,
   IsSupportedResult,
   IsTorchAvailableResult,
   IsTorchEnabledResult,
   PermissionStatus,
-  ReadBarcodesFromImageOptions,
-  ReadBarcodesFromImageResult,
-  ScanResult,
-  StartScanOptions,
+  StartActiveScanOptions,
+  readFaceFromImageOptions,
 } from './definitions';
 
-export class FaceDetectionWeb
-  extends WebPlugin
-  implements BarcodeScannerPlugin
-{
-  async startScan(_options?: StartScanOptions): Promise<void> {
+export class FaceDetectionWeb extends WebPlugin implements FaceDetectionPlugin {
+  async startActiveScan(_options: StartActiveScanOptions): Promise<void> {
     throw this.createUnavailableException();
   }
 
@@ -25,13 +21,9 @@ export class FaceDetectionWeb
     throw this.createUnavailableException();
   }
 
-  async readBarcodesFromImage(
-    _options: ReadBarcodesFromImageOptions,
-  ): Promise<ReadBarcodesFromImageResult> {
-    throw this.createUnavailableException();
-  }
-
-  async scan(): Promise<ScanResult> {
+  async readFaceFromImage(
+    _options: readFaceFromImageOptions,
+  ): Promise<FaceDetectionResults> {
     throw this.createUnavailableException();
   }
 
@@ -60,14 +52,6 @@ export class FaceDetectionWeb
   }
 
   async openSettings(): Promise<void> {
-    throw this.createUnavailableException();
-  }
-
-  async isGoogleBarcodeScannerModuleAvailable(): Promise<IsGoogleBarcodeScannerModuleAvailableResult> {
-    throw this.createUnavailableException();
-  }
-
-  async installGoogleBarcodeScannerModule(): Promise<void> {
     throw this.createUnavailableException();
   }
 

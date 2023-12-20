@@ -1,19 +1,25 @@
 import type { PermissionState, PluginListenerHandle } from '@capacitor/core';
 
 export interface FaceDetectionPlugin {
-  processImage(options: ProcessImageOptions): Promise<ProcessImageResult>;
-
-  startScan(options?: StartScanOptions): Promise<void>;
-
+  // starts the camera and starts scanning for faces. used with event listener
+  startActiveScan(options: StartActiveScanOptions): Promise<void>;
+  readFaceFromImage(
+    options: readFaceFromImageOptions,
+  ): Promise<FaceDetectionResults>;
+  // stops the camera and stops scanning for faces
   stopScan(): Promise<void>;
-
-  // ! removed from the original plugin
-  readBarcodesFromImage(
-    options: ReadBarcodesFromImageOptions,
-  ): Promise<ReadBarcodesFromImageResult>;
-
-  // Returns whether or not the face scanner is supported.
-  isSupported(): Promise<IsSupportedResult>;
+  // TODO: currently set to return a single face, but should return an array of faces
+  addListener(
+    eventName: 'faceScanned',
+    listenerFunc: (event: ActiveFaceSanResult) => void,
+  ): Promise<PluginListenerHandle> & PluginListenerHandle;
+  // Called when an error occurs during the scan.
+  addListener(
+    eventName: 'scanError',
+    listenerFunc: (event: ScanErrorEvent) => void,
+  ): Promise<PluginListenerHandle> & PluginListenerHandle;
+  // remove all listeners from this plugin
+  removeAllListeners(): Promise<void>;
 
   // Enable camera's torch (flash) during a scan session.
   enableTorch(): Promise<void>;
@@ -27,44 +33,26 @@ export interface FaceDetectionPlugin {
   isTorchAvailable(): Promise<IsTorchAvailableResult>;
   // Open the settings of the app.
   openSettings(): Promise<void>;
+  // Returns whether or not the face scanner is supported.
+  isSupported(): Promise<IsSupportedResult>;
   // check camera permission
+  // TODO: currently only checks camera permission
   checkPermissions(): Promise<PermissionStatus>;
   // Request camera permission.
   requestPermissions(): Promise<PermissionStatus>;
-  //  called when a face is scanned
-  addListener(
-    eventName: 'faceScanned',
-    listenerFunc: (event: FaceScannedEvent) => void,
-  ): Promise<PluginListenerHandle> & PluginListenerHandle;
-  /**
-   * Called when an error occurs during the scan.
-   *
-   * Available on Android and iOS.
-   *
-   * @since 0.0.1
-   */
-  addListener(
-    eventName: 'scanError',
-    listenerFunc: (event: ScanErrorEvent) => void,
-  ): Promise<PluginListenerHandle> & PluginListenerHandle;
-  /**
-   * Remove all listeners for this plugin.
-   *
-   * @since 0.0.1
-   */
-  removeAllListeners(): Promise<void>;
 }
 
-/**
- * @since 5.1.0
- */
-export interface ProcessImageOptions {
-  /**
-   * The local path to the image file.
-   *
-   * @since 5.1.0
-   */
-  path: string;
+export interface StartActiveScanOptions extends BaseFaceProcessingOptions {
+  // Configure the camera (front or back) to use.
+  lensFacing?: LensFacing;
+}
+
+export interface readFaceFromImageOptions extends BaseFaceProcessingOptions {
+  //  The local path to the image file.
+  path?: string;
+}
+
+export interface BaseFaceProcessingOptions {
   /**
    * Defines options to control accuracy / speed trade-offs in performing face detection.
    *
@@ -116,23 +104,72 @@ export interface ProcessImageOptions {
   enableTracking?: boolean;
 }
 
-/**
- * @since 5.1.0
- */
-export interface ProcessImageResult {
-  /**
-   * The detected faces.
-   *
-   * @since 5.1.0
-   */
+export interface ActiveFaceSanResult {
+  face: Face;
+}
+export interface FaceDetectionResults {
   faces: Face[];
+}
+
+/**
+ * Represents a face detected by `FaceDetector`.
+ *
+ * @since 5.1.0
+ * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/Face
+ */
+export interface Face {
+  /**
+   * Returns the axis-aligned bounding rectangle of the detected face.
+   */
+  bounds: Rect;
+
+  /**
+   * Returns a list of face landmarks.
+   */
+  landmarks?: FaceLandmark[];
+  /**
+   * Returns a list of face contours.
+   */
+  contours?: FaceContour[];
+
+  /**
+   * Returns the tracking ID if the tracking is enabled.
+   */
+  trackingId?: number;
+
+  /**
+   * Returns the rotation of the face about the horizontal axis of the image.
+   * Positive euler X is the face is looking up.
+   */
+  headEulerAngleX: number;
+  /**
+   * Returns the rotation of the face about the vertical axis of the image.
+   * Positive euler y is when the face turns toward the right side of the image that is being processed.
+   */
+  headEulerAngleY: number;
+  /**
+   * Returns the rotation of the face about the axis pointing out of the image.
+   * Positive euler z is a counter-clockwise rotation within the image plane.
+   */
+  headEulerAngleZ: number;
+
+  /**
+   * Returns a value between 0.0 and 1.0 giving a probability that the face is smiling.
+   */
+  smilingProbability?: number;
+  /**
+   * Returns a value between 0.0 and 1.0 giving a probability that the face's left eye is open.
+   */
+  leftEyeOpenProbability?: number;
+  /**
+   * Returns a value between 0.0 and 1.0 giving a probability that the face's right eye is open.
+   */
+  rightEyeOpenProbability?: number;
 }
 
 /**
  * Defines options to control accuracy / speed trade-offs in performing face detection.
  * In general, choosing the more accurate mode will generally result in longer runtime, whereas choosing the faster mode will generally result in detecting fewer faces.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceDetectorOptions.PerformanceMode
  */
 export enum PerformanceMode {
@@ -157,8 +194,6 @@ export enum PerformanceMode {
 /**
  * Defines options to enable face landmarks or not.
  * Processing time increases as the extra face landmark to search.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceDetectorOptions.LandmarkMode
  */
 export enum LandmarkMode {
@@ -181,8 +216,6 @@ export enum LandmarkMode {
 /**
  * Defines options to enable face contours or not.
  * Processing time increases as the number of contours to search.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceDetectorOptions.ContourMode
  */
 export enum ContourMode {
@@ -206,8 +239,6 @@ export enum ContourMode {
 /**
  * Defines options for characterizing attributes such as "smiling" and "eyes open".
  * Processing time increases as extra classification to search.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceDetectorOptions.ClassificationMode
  */
 export enum ClassificationMode {
@@ -228,85 +259,7 @@ export enum ClassificationMode {
 }
 
 /**
- * Represents a face detected by `FaceDetector`.
- *
- * @since 5.1.0
- * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/Face
- */
-export interface Face {
-  /**
-   * Returns the axis-aligned bounding rectangle of the detected face.
-   *
-   * @since 5.1.0
-   */
-  bounds: Rect;
-
-  /**
-   * Returns a list of face landmarks.
-   *
-   * @since 5.1.0
-   */
-  landmarks?: FaceLandmark[];
-  /**
-   * Returns a list of face contours.
-   *
-   * @since 5.1.0
-   */
-  contours?: FaceContour[];
-
-  /**
-   * Returns the tracking ID if the tracking is enabled.
-   *
-   * @since 5.1.0
-   */
-  trackingId?: number;
-
-  /**
-   * Returns the rotation of the face about the horizontal axis of the image.
-   * Positive euler X is the face is looking up.
-   *
-   * @since 5.1.0
-   */
-  headEulerAngleX: number;
-  /**
-   * Returns the rotation of the face about the vertical axis of the image.
-   * Positive euler y is when the face turns toward the right side of the image that is being processed.
-   *
-   * @since 5.1.0
-   */
-  headEulerAngleY: number;
-  /**
-   * Returns the rotation of the face about the axis pointing out of the image.
-   * Positive euler z is a counter-clockwise rotation within the image plane.
-   *
-   * @since 5.1.0
-   */
-  headEulerAngleZ: number;
-
-  /**
-   * Returns a value between 0.0 and 1.0 giving a probability that the face is smiling.
-   *
-   * @since 5.1.0
-   */
-  smilingProbability?: number;
-  /**
-   * Returns a value between 0.0 and 1.0 giving a probability that the face's left eye is open.
-   *
-   * @since 5.1.0
-   */
-  leftEyeOpenProbability?: number;
-  /**
-   * Returns a value between 0.0 and 1.0 giving a probability that the face's right eye is open.
-   *
-   * @since 5.1.0
-   */
-  rightEyeOpenProbability?: number;
-}
-
-/**
  * Rect holds four integer coordinates for a rectangle.
- *
- * @since 5.1.0
  * @see https://developer.android.com/reference/android/graphics/Rect.html
  */
 export interface Rect {
@@ -339,8 +292,6 @@ export interface Rect {
 /**
  * Represent a face landmark.
  * A landmark is a point on a detected face, such as an eye, nose, or mouth.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceLandmark
  */
 export interface FaceLandmark {
@@ -361,8 +312,6 @@ export interface FaceLandmark {
 /**
  * Represent a face contour.
  * A contour is a list of points on a detected face, such as the mouth.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceContour
  */
 export interface FaceContour {
@@ -382,8 +331,6 @@ export interface FaceContour {
 
 /**
  * Point holds two coordinates
- *
- * @since 5.1.0
  */
 export interface Point {
   x: number;
@@ -392,8 +339,6 @@ export interface Point {
 
 /**
  * Landmark types for face.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceLandmark.LandmarkType
  */
 export enum LandmarkType {
@@ -463,8 +408,6 @@ export enum LandmarkType {
 
 /**
  * Contour types for face.
- *
- * @since 5.1.0
  * @see https://developers.google.com/android/reference/com/google/mlkit/vision/face/FaceContour.ContourType
  */
 export enum ContourType {
@@ -560,181 +503,30 @@ export enum ContourType {
   RightCheek = 15,
 }
 
-/**
- * @since 0.0.1
- */
-export interface StartScanOptions {
-  /**
-   * Improve the speed of the barcode scanner by configuring
-   * the barcode formats to scan for.
-   *
-   * @since 0.0.1
-   */
-  formats?: BarcodeFormat[];
-  /**
-   * Configure the camera (front or back) to use.
-   *
-   * @since 0.0.1
-   */
-  lensFacing?: LensFacing;
-}
-
-/**
- * @since 0.0.1
- */
-export interface ReadBarcodesFromImageOptions {
-  /**
-   * Improve the speed of the barcode scanner by configuring
-   * the barcode formats to scan for.
-   *
-   * @since 0.0.1
-   */
-  formats?: BarcodeFormat[];
-  /**
-   * The local path to the image file.
-   *
-   * @since 0.0.1
-   */
-  path: string;
-}
-
-/**
- * @since 0.0.1
- */
-export interface ReadBarcodesFromImageResult {
-  /**
-   * The detected barcodes.
-   *
-   * @since 0.0.1
-   */
-  barcodes: Barcode[];
-}
-
-/**
- * @since 0.0.1
- */
-export interface ScanOptions {
-  /**
-   * Improve the speed of the barcode scanner by configuring
-   * the barcode formats to scan for.
-   *
-   * @since 0.0.1
-   */
-  formats?: BarcodeFormat[];
-}
-
-/**
- * @since 0.0.1
- */
-export interface ScanResult {
-  /**
-   * The detected barcodes.
-   *
-   * @since 0.0.1
-   */
-  barcodes: Barcode[];
-}
-
-/**
- * @since 0.0.1
- */
 export interface IsSupportedResult {
-  /**
-   * Whether or not the barcode scanner is supported by checking if the device has a camera.
-   *
-   * @since 0.0.1
-   * @example true
-   */
+  // Whether or not the face scanner is supported by checking if the device has a camera.
   supported: boolean;
 }
 
-/**
- * @since 0.0.1
- */
 export interface IsTorchEnabledResult {
-  /**
-   * Whether or not the torch is enabled.
-   *
-   * @since 0.0.1
-   * @example true
-   */
   enabled: boolean;
 }
 
-/**
- * @since 0.0.1
- */
 export interface IsTorchAvailableResult {
-  /**
-   * Whether or not the torch is available.
-   *
-   * @since 0.0.1
-   * @example true
-   */
   available: boolean;
 }
 
-/**
- * @since 5.1.0
- */
-export interface IsGoogleBarcodeScannerModuleAvailableResult {
-  /**
-   * Whether or not the Google Barcode Scanner module is available.
-   *
-   * @since 5.1.0
-   */
-  available: boolean;
-}
-
-/**
- * @since 0.0.1
- */
 export type CameraPermissionState = PermissionState | 'limited';
 
-/**
- * @since 0.0.1
- */
 export interface PermissionStatus {
-  /**
-   * @since 0.0.1
-   */
   camera: CameraPermissionState;
 }
 
-/**
- * @since 0.0.1
- */
-export interface FaceScannedEvent {
-  /**
-   * A detected barcode.
-   *
-   * @since 0.0.1
-   */
-  barcode: Barcode;
-}
-
-/**
- * @since 0.0.1
- */
 export interface ScanErrorEvent {
-  /**
-   * The error message.
-   *
-   * @since 0.0.1
-   */
   message: string;
 }
 
-/**
- * @since 0.0.1
- */
 export enum LensFacing {
-  /**
-   * @since 0.0.1
-   */
   Front = 'FRONT',
-  /**
-   * @since 0.0.1
-   */
   Back = 'BACK',
 }
