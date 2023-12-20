@@ -15,7 +15,7 @@ ext {
 
 buildscript {
     ext {
-        kotlin_version = '2.0.0-Beta2'
+        kotlin_version = '1.8.0'
     }
     repositories {
         google()
@@ -74,6 +74,7 @@ dependencies {
 //    MLKit deps
     implementation "com.google.mlkit:face-detection:$mlkitFaceDetectionVersion"
     implementation "com.google.android.gms:play-services-mlkit-face-detection:$playServicesMlkitFaceDetectionVersion"
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
