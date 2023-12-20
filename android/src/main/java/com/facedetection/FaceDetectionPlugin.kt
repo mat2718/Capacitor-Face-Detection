@@ -316,6 +316,7 @@ class FaceDetectionPlugin : Plugin() {
 
     fun notifyFaceScannedListener(face: Face?, imageSize: Point?) {
         try {
+            Log.println(Log.INFO, TAG, "notifyFaceScannedListener:: $face")
             val screenSize: Point = screenSize
             // TODO: consider adding image size and screen size to the result
             val faceResult: JSObject? =
