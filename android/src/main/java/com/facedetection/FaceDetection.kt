@@ -8,6 +8,7 @@ import android.graphics.Point
 import android.media.Image
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import android.view.Display
 import android.view.WindowManager
 import androidx.camera.core.Camera
@@ -22,6 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.facedetection.callbacks.ScanImageResultsCallback
 import com.facedetection.callbacks.StartScanResultCallback
 import com.facedetection.helpers.ProcessImageOptions
+import com.facedetection.helpers.ProcessImageResult
 import com.getcapacitor.PermissionState
 import com.getcapacitor.PluginCall
 import com.google.common.util.concurrent.ListenableFuture
@@ -179,7 +181,8 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
                         .process(inputImage)
                         .addOnSuccessListener { faceResults ->
                             faceDetector.close()
-            //                        val result = ProcessImageResult().toJSObject(faceResults)
+                            val result = ProcessImageResult().toJSObject(faceResults)
+                            Log.println(Log.INFO, "FaceDetection", result.toString())
                             callback.success(faceResults)
                         }
                         .addOnCanceledListener {
@@ -273,6 +276,7 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
         faceDetectorInstance!!
             .process(inputImage)
             .addOnSuccessListener { faces ->
+                Log.println(Log.INFO, "FaceDetection", faces.toString())
                 if (scanSettings == null) {
                     // Scanning stopped while processing the image
                     return@addOnSuccessListener
