@@ -23,7 +23,7 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetectorOptions
 
 @CapacitorPlugin(
-    name = "FaceDetection", permissions = [Permission(
+    name = "FaceDetectionPlugin", permissions = [Permission(
         strings = [Manifest.permission.CAMERA],
         alias = FaceDetectionPlugin.CAMERA
     )]
