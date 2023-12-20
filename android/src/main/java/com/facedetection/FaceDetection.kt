@@ -35,8 +35,7 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
     private var faceDetectorInstance: FaceDetector? = null
     private var camera: Camera? = null
     private var scanSettings: ProcessImageOptions? = null
-    private lateinit var processCameraProvider: ProcessCameraProvider
-//    private var previewView: PreviewView? = null
+    private var processCameraProvider: ProcessCameraProvider? = null
 
     var isTorchEnabled = false
         private set
@@ -97,7 +96,8 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
 
                     // Start the camera
                     camera = cameraSelector?.let {
-                        processCameraProvider.bindToLifecycle(
+                        // i hate !!...
+                        processCameraProvider!!.bindToLifecycle(
                             plugin.context as LifecycleOwner,
                             it,
                             preview,
@@ -201,9 +201,7 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
         showWebViewBackground()
         disableTorch()
         // Stop the camera
-        if (processCameraProvider != null) {
-            processCameraProvider.unbindAll()
-        }
+        processCameraProvider?.unbindAll()
         camera = null
         faceDetectorInstance = null
         scanSettings = null
