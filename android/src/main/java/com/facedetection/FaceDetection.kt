@@ -54,6 +54,7 @@ class FaceDetection(private val plugin: FaceDetectionPlugin) : ImageAnalysis.Ana
         stopScan()
         // Hide WebView background
         hideWebViewBackground()
+        this.scanSettings = options
         val performanceMode: Int = options.performanceMode
         val landmarkMode: Int = options.landmarkMode
         val contourMode: Int = options.contourMode
